@@ -219,29 +219,20 @@ app.get("/api/admin/visitors", (req, res) => {
 app.post("/api/admin/reset", async (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ ok: false, error: "unauthorized" });
   try {
-    const rows = await sbGet("orders", "select=ref");
-    for (const r of (rows || [])) {
-      await sbDelete("orders", "ref=eq." + encodeURIComponent(r.ref));
-    }
+    await sbDelete("orders", "ref=neq.___none___");
+    await sbDelete("site_visitors", "id=gt.0");
     visitors.clear();
     allVisitorIds.clear();
-    try {
-      const vRows = await sbGet("site_visitors", "select=id");
-      for (const v of (vRows || [])) await sbDelete("site_visitors", "id=eq." + v.id);
-    } catch (e) {}
-    res.json({ ok: true, deletedOrders: (rows || []).length });
-  } catch (e) { res.status(500).json({ ok: false }); }
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
 app.delete("/api/admin/inactive", async (req, res) => {
   if (!isAdmin(req)) return res.status(401).json({ ok: false, error: "unauthorized" });
   try {
     const cutoff = new Date(Date.now() - 120000).toISOString();
-    const rows = await sbGet("orders", "updated_at=lt." + cutoff + "&select=ref");
-    for (const r of (rows || [])) {
-      await sbDelete("orders", "ref=eq." + encodeURIComponent(r.ref));
-    }
-    res.json({ ok: true, deleted: (rows || []).length });
+    await sbDelete("orders", "updated_at=lt." + cutoff);
+    res.json({ ok: true });
   } catch (e) { res.status(500).json({ ok: false }); }
 });
 
